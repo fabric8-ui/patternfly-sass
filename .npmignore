@@ -26,7 +26,6 @@ npm.cmd
 build
 .sass-cache
 tmp
-assets/css
 /dist
 /pkg
 

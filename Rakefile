@@ -24,20 +24,29 @@ task :compile do
 
   ::Sass::Script::Value::Number.precision = [8, ::Sass::Script::Value::Number.precision].max
 
+  dst_dir = 'assets/css'
   path = 'assets/stylesheets'
-  FileUtils.mkdir_p('tmp')
+  FileUtils.mkdir_p(dst_dir)
 
-  puts Term::ANSIColor.bold "Compiling SCSS in #{path}"
+  puts Term::ANSIColor.bold "Compiling SCSS in #{path} to #{dst_path}"
 
-  %w(patternfly.css patternfly.min.css).each do |out|
+  %w(patternfly.css patternfly.min.css).each do |out|    
     style = (out == "patternfly.min.css") ? :compressed : :nested
     src_path = File.join(path, '_patternfly.scss')
-    dst_path = File.join('tmp', out)
-    engine = Sass::Engine.for_file(src_path, :syntax => :scss, :load_paths => [path], :style => style)
-    css = engine.render
-    css.gsub!(/(( )|(:))0((px)|(em)|(\%))/, '\10')
-    File.open(dst_path, 'w') { |f| f.write css }
+    dst_path = File.join(dst_dir, out)
+    engine = Sass::Engine.for_file(src_path, :filename => src_path, :syntax => :scss, :load_paths => [path], :style => style)
+    css = engine.render_with_sourcemap(dst_path + '.map')
+    css[0].gsub!(/(( )|(:))0((px)|(em)|(\%))/, '\10')
+    File.open(dst_path, 'w') { |f| f.write css[0] }
     puts Term::ANSIColor.cyan("  #{dst_path}") + '...'
+
+    # write sourcemap to file
+    sourcemap_options = {
+      :css_path => dst_path,
+      :sourcemap_path => dst_path + '.map'
+    }
+    File.write(dst_path + '.map', css[1].to_json(sourcemap_options))
+    puts Term::ANSIColor.cyan("  #{dst_path}.map") + '...'
   end
 end
 

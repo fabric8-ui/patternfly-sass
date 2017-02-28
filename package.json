@@ -1,6 +1,6 @@
 {
-  "name": "patternfly-sass",
-  "version": "3.21.0",
+  "name": "patternfly-sass-with-css",
+  "version": "3.21.1",
   "author": "Red Hat",
   "license": "Apache-2.0",
   "dependencies": {
